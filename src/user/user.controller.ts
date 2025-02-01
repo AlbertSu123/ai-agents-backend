@@ -12,11 +12,11 @@ export class UserController {
   @Post('/')
   @HttpCode(200)
   async createUser(@Req() request: Request, @Body() body: GetOrCreateUserDto) {
-    const user = await this.userService.get({ id: '1' });
+    const user = await this.userService.get({ address: body.address });
     if (!user) {
       const newUser = await this.userService.create({
-        id: '1',
         address: body.address,
+        twitterHandle: body.twitterHandle,
       });
       await this.userService.save(newUser);
       return newUser;

@@ -28,7 +28,13 @@ const findBookmarks = (data: any): number => {
     .entries[0].content.itemContent.tweet_results.result.legacy.bookmark_count;
 };
 
-async function getTweetData(tweetId: string) {
+const findAuthor = (data: any): string => {
+  return data.data.threaded_conversation_with_injections_v2.instructions[0]
+    .entries[0].content.itemContent.tweet_results.result.core.user_results
+    .result.legacy.screen_name;
+};
+
+export async function getTweetData(tweetId: string) {
   const apiResponse = await fetch(
     `https://x.com/i/api/graphql/nBS-WpgA6ZG0CyNHD517JQ/TweetDetail?variables=${encodeURIComponent(
       JSON.stringify({
@@ -115,7 +121,16 @@ async function getTweetData(tweetId: string) {
   const retweets = findRetweets(data);
   const comments = findComments(data);
   const bookmarks = findBookmarks(data);
-  return { viewCount, tweetText, likes, retweets, comments, bookmarks };
+  const author = findAuthor(data);
+  return {
+    viewCount,
+    tweetText,
+    likes,
+    retweets,
+    comments,
+    bookmarks,
+    author,
+  };
 }
 
-getTweetData('1885362984634978541').then(console.log);
+// getTweetData('1885362984634978541').then(console.log);
