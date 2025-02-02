@@ -15,13 +15,17 @@ import { CheckAllTweetsDto, SaveTweetDto, VerifyTweetDto } from './tweet.dto';
 import { BountyService } from 'src/bounty/bounty.service';
 import { TweetService } from './tweet.service';
 import { UserService } from 'src/user/user.service';
-
+import { createPublicClient, createWalletClient, http } from 'viem';
+import { base } from 'viem/chains';
+import { ConfigService } from '@nestjs/config';
+import { privateKeyToAccount } from 'viem/accounts';
 @Controller('tweet')
 export class TweetController {
   constructor(
     @Inject(TweetService) private tweetService: TweetService,
     @Inject(BountyService) private bountyService: BountyService,
     @Inject(UserService) private userService: UserService,
+    @Inject(ConfigService) private configService: ConfigService,
   ) {}
 
   @Get('/')
@@ -81,6 +85,7 @@ export class TweetController {
           bounty.fillingUserId = user.id;
           await this.bountyService.save(bounty);
           bounties.push(bounty);
+          await this.sendReward(user.address, bounty.value);
         }
       }
     }
@@ -123,6 +128,55 @@ export class TweetController {
     bounty.filled = new Date();
     bounty.fillingUserId = user.id;
     await this.bountyService.save(bounty);
+    await this.sendReward(user.address, bounty.value);
     return newTweet;
+  }
+
+  async sendReward(address: string, amount: number) {
+    const publicClient = createPublicClient({
+      chain: base,
+      transport: http(),
+    });
+    const walletClient = createWalletClient({
+      chain: base,
+      transport: http(),
+      account: privateKeyToAccount(this.configService.get('privateKey')),
+    });
+    const tx = await walletClient.writeContract({
+      chain: walletClient.chain,
+      account: walletClient.account,
+      address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+      abi: [
+        {
+          constant: false,
+          inputs: [
+            {
+              name: '_to',
+              type: 'address',
+            },
+            {
+              name: '_value',
+              type: 'uint256',
+            },
+          ],
+          name: 'transfer',
+          outputs: [
+            {
+              name: '',
+              type: 'bool',
+            },
+          ],
+          payable: false,
+          stateMutability: 'nonpayable',
+          type: 'function',
+        },
+      ],
+      functionName: 'transfer',
+      args: [address, amount],
+    });
+    const txReceipt = await publicClient.waitForTransactionReceipt({
+      hash: tx,
+    });
+    return txReceipt;
   }
 }
