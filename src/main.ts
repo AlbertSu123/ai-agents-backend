@@ -23,18 +23,12 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
+
   app.enableCors({
-    credentials: true,
-    methods: 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
-    allowedHeaders:
-      'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Observe, Authorization, Origin',
-    origin: [
-      /^https:\/\/(?:[a-z0-9\-]+(?:\.[a-z0-9]+)*\.)?sweep\.gg$/,
-      /sweep-gg.vercel.app$/,
-      /^http:\/\/localhost:([0-9]+)$/,
-      'https://hoppscotch.io',
-      'https://twitter-agents.vercel.app/',
-    ],
+    origin: '*', // Allow all origins
+    methods: '*', // Allow all methods
+    allowedHeaders: '*', // Allow all headers
+    credentials: false, // Must be false when using origin: '*'
   });
 
   await app.listen(config.get('port'));
