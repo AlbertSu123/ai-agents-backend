@@ -33,7 +33,7 @@ async function bootstrap() {
       /sweep-gg.vercel.app$/,
       /^http:\/\/localhost:([0-9]+)$/,
       'https://hoppscotch.io',
-      '*',
+      'https://twitter-agents.vercel.app/',
     ],
   });
 

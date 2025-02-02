@@ -13,6 +13,9 @@ export class TweetEntity extends BaseEntity {
   id: string; // twitter tweet id
 
   @Column()
+  address: string; // User Address
+
+  @Column()
   content: string;
 
   @Column()
