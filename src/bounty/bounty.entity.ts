@@ -26,6 +26,9 @@ export class BountyEntity extends BaseEntity {
   @Column()
   bountyScore: number;
 
+  @Column()
+  creatingUsername: string;
+
   @Column({ nullable: true })
   fillingUserId: string;
 
@@ -34,6 +37,9 @@ export class BountyEntity extends BaseEntity {
 
   @Column({ nullable: true })
   filled: Date;
+
+  @Column({ nullable: true })
+  tweetId: string;
 
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
