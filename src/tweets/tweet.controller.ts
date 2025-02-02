@@ -45,7 +45,7 @@ export class TweetController {
   }
 
   @JwtRequired(true)
-  @Get('/')
+  @Post('/check-all')
   @HttpCode(200)
   async checkAllTweets(
     @Req() request: Request,
@@ -56,6 +56,7 @@ export class TweetController {
     const availableBounties = await this.bountyService.getMany({
       filled: null,
     });
+    const bounties = [];
     for (const tweet of myTweets) {
       for (const bounty of availableBounties) {
         const { isVerified, tweetData } = await this.tweetService.verifyTweet(
@@ -73,10 +74,11 @@ export class TweetController {
           bounty.filled = new Date();
           bounty.fillingUserId = user.id;
           await this.bountyService.save(bounty);
+          bounties.push(bounty);
         }
       }
     }
-    return 'Checked all Tweets';
+    return bounties;
   }
 
   @JwtRequired(true)
