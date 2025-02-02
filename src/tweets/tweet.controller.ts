@@ -24,6 +24,12 @@ export class TweetController {
     @Inject(UserService) private userService: UserService,
   ) {}
 
+  @Get('/')
+  @HttpCode(200)
+  async getAllTweets() {
+    return await this.tweetService.getAllTweets();
+  }
+
   @JwtRequired(true)
   @Post('/')
   @HttpCode(200)

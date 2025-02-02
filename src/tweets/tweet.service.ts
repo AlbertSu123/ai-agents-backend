@@ -72,6 +72,14 @@ export class TweetService {
     });
   }
 
+  async getAllTweets() {
+    return this.tweetRepository.find({
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+  }
+
   /**
    * Create a transaction
    * @param transaction
