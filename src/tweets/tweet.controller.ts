@@ -15,10 +15,11 @@ import { CheckAllTweetsDto, SaveTweetDto, VerifyTweetDto } from './tweet.dto';
 import { BountyService } from 'src/bounty/bounty.service';
 import { TweetService } from './tweet.service';
 import { UserService } from 'src/user/user.service';
-import { createPublicClient, createWalletClient, http } from 'viem';
+import { Chain, createPublicClient, createWalletClient, http } from 'viem';
 import { ConfigService } from '@nestjs/config';
 import { privateKeyToAccount } from 'viem/accounts';
-import { DEFAULT_CHAIN } from 'src/common/helpers/privy/constants';
+import { supportedChains } from 'src/common/helpers/privy/constants';
+import { COIN_ABI } from 'src/common/abis/Coin';
 @Controller('tweet')
 export class TweetController {
   constructor(
@@ -85,7 +86,11 @@ export class TweetController {
           bounty.fillingUserId = user.id;
           await this.bountyService.save(bounty);
           bounties.push(bounty);
-          await this.sendReward(user.address, bounty.value);
+          try {
+            await this.sendReward(bounty.chainId, user.address, bounty.value);
+          } catch (error) {
+            console.log(error);
+          }
         }
       }
     }
@@ -128,57 +133,39 @@ export class TweetController {
     bounty.filled = new Date();
     bounty.fillingUserId = user.id;
     await this.bountyService.save(bounty);
-    await this.sendReward(user.address, bounty.value);
+    try {
+      await this.sendReward(bounty.chainId, user.address, bounty.value);
+    } catch (error) {
+      console.log(error);
+    }
     return newTweet;
   }
 
-  async sendReward(address: string, amount: number) {
-    //TODO: Change amount
-    amount = 0;
+  getChain(chainId: number) {
+    return supportedChains.find((chain: Chain) => chain.id === chainId);
+  }
+
+  async sendReward(chainId: number, address: string, amount: number) {
     const publicClient = createPublicClient({
-      chain: DEFAULT_CHAIN,
+      chain: this.getChain(chainId),
       transport: http(),
     });
     const walletClient = createWalletClient({
-      chain: DEFAULT_CHAIN,
+      chain: this.getChain(chainId),
       transport: http(),
       account: privateKeyToAccount(this.configService.get('privateKey')),
     });
-    const tx = await walletClient.writeContract({
+    const mintTx = await walletClient.writeContract({
       chain: walletClient.chain,
       account: walletClient.account,
-      address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
-      abi: [
-        {
-          constant: false,
-          inputs: [
-            {
-              name: '_to',
-              type: 'address',
-            },
-            {
-              name: '_value',
-              type: 'uint256',
-            },
-          ],
-          name: 'transfer',
-          outputs: [
-            {
-              name: '',
-              type: 'bool',
-            },
-          ],
-          payable: false,
-          stateMutability: 'nonpayable',
-          type: 'function',
-        },
-      ],
-      functionName: 'transfer',
+      address: COIN_ABI.addresses[chainId],
+      abi: COIN_ABI.abi,
+      functionName: 'mint',
       args: [address, amount],
     });
-    const txReceipt = await publicClient.waitForTransactionReceipt({
-      hash: tx,
+    const mintReceipt = await publicClient.waitForTransactionReceipt({
+      hash: mintTx,
     });
-    return txReceipt;
+    return mintReceipt;
   }
 }
