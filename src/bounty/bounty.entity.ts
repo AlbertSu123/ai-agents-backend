@@ -18,6 +18,9 @@ export class BountyEntity extends BaseEntity {
   description: string;
 
   @Column()
+  chainId: number;
+
+  @Column()
   title: string;
 
   @Column()

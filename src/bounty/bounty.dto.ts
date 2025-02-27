@@ -15,4 +15,7 @@ export class CreateBountyDto {
 
   @IsNumber()
   bountyScore: number;
+
+  @IsNumber()
+  chainId: number;
 }

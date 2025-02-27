@@ -27,6 +27,7 @@ export class BountyController {
       value: body.value,
       bountyScore: body.bountyScore,
       creatingUsername: body.creatingUsername,
+      chainId: body.chainId,
     });
     await this.bountyService.save(newBounty);
     return newBounty;
