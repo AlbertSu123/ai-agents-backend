@@ -3,6 +3,13 @@ import { MultichainAbi } from './types';
 export const BOUNTY_ABI: MultichainAbi = {
   addresses: {
     8453: '0x7e57A62c606DC0F13e2ec93F38d37c254F860c73',
+    85432: '0x7e57A62c606DC0F13e2ec93F38d37c254F860c73',
+    48899: '0x7e57A62c606DC0F13e2ec93F38d37c254F860c73',
+    545: '0x7e57A62c606DC0F13e2ec93F38d37c254F860c73',
+    296: '0x7e57A62c606DC0F13e2ec93F38d37c254F860c73',
+    50312: '0x7e57A62c606DC0F13e2ec93F38d37c254F860c73',
+    11155111: '0x84ed10068c8F06E5fCC4b0C5A56100618260C301',
+    763373: '0x7e57A62c606DC0F13e2ec93F38d37c254F860c73',
   },
   abi: [
     { type: 'constructor', inputs: [], stateMutability: 'nonpayable' },
