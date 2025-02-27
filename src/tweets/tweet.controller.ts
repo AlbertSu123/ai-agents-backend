@@ -16,9 +16,9 @@ import { BountyService } from 'src/bounty/bounty.service';
 import { TweetService } from './tweet.service';
 import { UserService } from 'src/user/user.service';
 import { createPublicClient, createWalletClient, http } from 'viem';
-import { base } from 'viem/chains';
 import { ConfigService } from '@nestjs/config';
 import { privateKeyToAccount } from 'viem/accounts';
+import { DEFAULT_CHAIN } from 'src/common/helpers/privy/constants';
 @Controller('tweet')
 export class TweetController {
   constructor(
@@ -133,12 +133,14 @@ export class TweetController {
   }
 
   async sendReward(address: string, amount: number) {
+    //TODO: Change amount
+    amount = 0;
     const publicClient = createPublicClient({
-      chain: base,
+      chain: DEFAULT_CHAIN,
       transport: http(),
     });
     const walletClient = createWalletClient({
-      chain: base,
+      chain: DEFAULT_CHAIN,
       transport: http(),
       account: privateKeyToAccount(this.configService.get('privateKey')),
     });
